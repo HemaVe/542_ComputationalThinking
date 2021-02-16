@@ -1,0 +1,63 @@
+---
+title: "Clustering the merged data"
+output: html_notebook
+---
+
+
+
+```{r}
+linkcsv="https://github.com/tjvijapurapu/542_ComputationalThinking/raw/main/UpdatedTJHemaSamik.csv"
+
+mydata2=read.csv(linkcsv)
+mydata2
+```
+#Preparing data
+```{r}
+Clus_Mydata2 = mydata2[,c('lessthan5_50', 'FPI', 'FDI')]
+summary(Clus_Mydata2)
+```
+#Scaling the data
+```{r}
+Clus_Mydata2 = scale(Clus_Mydata2)
+summary(Clus_Mydata2)
+```
+#renaming subset indexes
+```{r}
+row.names(Clus_Mydata2) = mydata2$Country
+head(Clus_Mydata2)
+```
+#setting the seed for replicability
+```{r}
+set.seed(234)
+```
+#deciding distance method and computing distance matrix
+```{r}
+library(cluster)
+Clus_Mydata2_Dist = daisy(x=Clus_Mydata2) #daisy is only for numerical data
+Clus_Mydata2_Dist
+```
+#Partitioning technique
+```{r}
+NumCluster = 4
+res.pam = pam(x=Clus_Mydata2_Dist, k=NumCluster, cluster.only = F)
+```
+```{r}
+install.packages("factoextra")
+library(factoextra)
+install.packages("ggpubr")
+library(ggpubr)
+library(ggplot2)
+fviz_silhouette(res.pam)
+```
+Detecting anomalies
+```{r}
+pamEval = data.frame(res.pam$silinfo$widths)
+head(pamEval)
+```
+Request negative silhouettes
+```{r}
+pamEval[pamEval$sil_width<0,]
+```
+
+
+
